@@ -12,9 +12,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 public class ZooClientTest {
@@ -37,6 +35,23 @@ public class ZooClientTest {
 
         List<String> mammals = zooClient.fetchMammals();
         assertThat(mammals, contains("Bear", "Jackal"));
+    }
+
+    @Test
+    public void testCreatingNewMammal() throws Exception {
+        mockServer
+                .expect(requestTo(zooHost + "/mammals"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().string("{" +
+                        "\"species\":\"Camel\"," +
+                        "\"name\":\"Jerry\"," +
+                        "\"age\":42" +
+                        "}"))
+                .andRespond(withSuccess());
+
+        zooClient.createMammal("Camel", "Jerry", 42);
+
+        mockServer.verify();
     }
 
     @Test
