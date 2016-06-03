@@ -1,0 +1,9 @@
+pairs:
+  bb: Brian Butz; bbutz
+  dw: Deborah Wood; dwood
+
+email:
+  prefix: pair
+  domain: pivotal.io
+
+global: true
