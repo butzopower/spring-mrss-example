@@ -2,14 +2,18 @@ package com.example;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
@@ -33,5 +37,20 @@ public class ZooClientTest {
 
         List<String> mammals = zooClient.fetchMammals();
         assertThat(mammals, contains("Bear", "Jackal"));
+    }
+
+    @Test
+    public void testCreatingNewMammalUsingJSONPath() throws Exception {
+        mockServer
+                .expect(requestTo(zooHost + "/mammals"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(jsonPath("$.species", equalTo("Camel")))
+                .andExpect(jsonPath("$.name", equalTo("Jerry")))
+                .andExpect(jsonPath("$.age", equalTo(42)))
+                .andRespond(withSuccess());
+
+        zooClient.createMammal("Camel", "Jerry", 42);
+
+        mockServer.verify();
     }
 }
